@@ -10,7 +10,6 @@ let loadingPartidos = ref(true);
 export const usePartidosService =()=>{
 
     const getPartidos = () => {
-
         fetch(useGlobales.urlBase+'/partidos')
         .then(response => response.json())
         .then(data => partidosData.value = data["hydra:member"])
@@ -20,23 +19,15 @@ export const usePartidosService =()=>{
     const getPartidosPorProvincia = (idProvincia) =>{
         loadingPartidos.value =true;
         partidosDataXProvincia.value =[];
-        fetch(useGlobales.urlBase+'/provincias/'+idProvincia)
+        fetch(useGlobales.urlBase+'/partidos/provincia/'+idProvincia)
         .then(response => response.json())
-        .then(data => {            
-            data.partidos.forEach(partido => {                
-                fetch('https://crm.votame.info'+partido)
-                .then(response => response.json())
-                .then(dataPartido => {
-                    if(dataPartido.activo){
-                        partidosDataXProvincia.value.push(dataPartido);
-                    }
-                })
-                .catch(error => console.log(error+" "+partido))
-                .finally(()=>loadingPartidos.value =false)
-            });
+        .then(data => {data["hydra:member"].forEach(partido => {                
+                if(partido.activo)
+                    partidosDataXProvincia.value.push(partido);
+            })
         })
+        .finally(()=>loadingPartidos.value =false)
         .catch(error => console.log(error))
-        
     }
 
     return {
