@@ -20,21 +20,14 @@ export const useProvinciasService =()=>{
     const getProvinciaPorPais = (idPais) =>{
         loadingProvincias.value =true;
         provinciasDataXPais.value =[];
-        fetch(useGlobales.urlBase+'/pais/'+idPais)
+        fetch(useGlobales.urlBase+'/provincias/pais/'+idPais)
         .then(response => response.json())
-        .then(data => {            
-            data.provincias.forEach(prov => {                
-                fetch('https://crm.votame.info'+prov)
-                .then(response => response.json())
-                .then(dataProv => {
-                    if(dataProv.activa){
-                        provinciasDataXPais.value.push(dataProv);
-                    }
-                })
-                .catch(error => console.log(error))
-                .finally(()=>loadingProvincias.value =false)
-            });
+        .then(data => {data["hydra:member"].forEach(prov => {                
+                if(prov.activa)
+                    provinciasDataXPais.value.push(prov);
+            })
         })
+        .finally(()=>loadingProvincias.value =false)
         .catch(error => console.log(error))
         
     }

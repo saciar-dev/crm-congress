@@ -4,7 +4,7 @@ import { useGlobalesStore } from '../store/globales';
 const useGlobales = useGlobalesStore();
 const clientesData = ref([]);
 
-export const useClienteServicio = () =>{
+export const useClienteService = () =>{
     
     const getAllClientes = () =>{
         fetch(useGlobales.urlBase+'/clientes')
@@ -16,6 +16,11 @@ export const useClienteServicio = () =>{
     }
 
     const addCliente = (cliente) => {
+        cliente.value.condicionIva = '/api/condicion_ivas/'+cliente.value.condicionIva.id;
+        cliente.value.pais         = '/api/pais/'+cliente.value.pais.id;
+        cliente.value.provincia    = '/api/provincias/'+cliente.value.provincia.id;
+        cliente.value.partido      = '/api/partidos/'+cliente.value.partido.id;
+
         const requestOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -42,7 +47,5 @@ export const useClienteServicio = () =>{
         clientesData,
         addCliente,
         updateCliente
-    }
-
-    
+    }    
 }
