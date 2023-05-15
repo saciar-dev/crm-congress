@@ -124,7 +124,7 @@
     import { useToast } from 'primevue/usetoast';
     // import { useCondicionIvaService } from '@/service/CondicionesIvaService';
     // import { usePaisesService } from '@/service/PaisService';
-    import { useClienteServicio } from '../../service/ClienteService';
+    import { useClienteService } from '../../service/ClienteService';
     import { useProvinciasService } from '../../service/ProvinciasService';
     import { usePartidosService } from '../../service/PartidosService';
     import { useLocalidadesService } from '../../service/LocalidadesService';
@@ -143,7 +143,7 @@
         
     });
 
-    const { getAllClientes, clientesData, addCliente, updateCliente } = useClienteServicio();
+    const { getAllClientes, clientesData, addCliente, updateCliente } = useClienteService();
     // const { getCondiciones, condicionData} = useCondicionIvaService();
    //  const { getPaises, paisesData} = usePaisesService();
     const { getProvinciaPorPais } =  useProvinciasService();

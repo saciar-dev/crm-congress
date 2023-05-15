@@ -20,6 +20,12 @@ export const useClienteService = () =>{
         cliente.value.pais         = '/api/pais/'+cliente.value.pais.id;
         cliente.value.provincia    = '/api/provincias/'+cliente.value.provincia.id;
         cliente.value.partido      = '/api/partidos/'+cliente.value.partido.id;
+        cliente.value.localidad    = '/api/localidads/'+cliente.value.localidad.id;
+        cliente.value.telefono     = "";
+        cliente.value.piso         = "";
+        cliente.value.dpto         = "";
+        cliente.value.codigoPostal = "";
+        cliente.value.contactos    = [];
 
         const requestOptions = {
             method: "POST",
