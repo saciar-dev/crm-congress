@@ -65,7 +65,7 @@
                 </div>
                 <div class="field">
                     <label for="cuit">CUIT</label>
-                    <InputNumber id="cuit" v-model.trim="cliente.cuit" :useGrouping="false"/>
+                    <InputNumber inputId="cuit" v-model.trim="cliente.cuit" :useGrouping="false"/>
                 </div>
                 <div class="formgrid grid">
                     <div class="field col">
@@ -79,72 +79,23 @@
                 </div>
                 <div class="formgrid grid">
                     <div class="field col">
-                        <label for="paises" class="mb-3">Pais</label>
-                        <Dropdown id="paises" v-model="cliente.pais" @change="onPaisChange" :options="paisesData" optionLabel="nombre" placeholder="Selecciona un pais">
-                            <template #value="slotProps">
-                                <div v-if="slotProps.value && slotProps.value.nombre">
-                                    <div>{{ slotProps.value.nombre }}</div>
-                                </div>
-                                <div v-else-if="slotProps.value && !slotProps.value.nombre">
-                                    <div>{{ slotProps.value }}</div>
-                                </div>
-                                <span v-else>
-                                    {{slotProps.placeholder}} 
-                                </span>
-                            </template>
-                        </Dropdown>
+                        <DespleagablePais :model="cliente" @onPaisChange="onPaisChange"></DespleagablePais>
                     </div>
                     <div class="field col">
-                        <label for="provincias" class="mb-3">Provincia</label>
-                        <Dropdown id="provincias" :disabled="loadingProvincias" @change="onProvinciaChange" v-model="cliente.provincia" :options="provinciasDataXPais" optionLabel="nombre" placeholder="Selecciona una provincia">
-                            <template #value="slotProps">
-                                <div v-if="slotProps.value && slotProps.value.nombre">
-                                    <div>{{ slotProps.value.nombre }}</div>
-                                </div>
-                                <div v-else-if="slotProps.value && !slotProps.value.nombre">
-                                    <div>{{ slotProps.value }}</div>
-                                </div>
-                                <span v-else>
-                                    {{slotProps.placeholder}} 
-                                </span>
-                            </template>
-                        </Dropdown>
+                        <DesplegableProvincia :model="cliente" @onProvinciaChange = "onProvinciaChange"></DesplegableProvincia>
                     </div>                    
                 </div>
                 <div class="formgrid grid">
                     <div class="field col">
-                        <label for="partidos" class="mb-3">Partido</label>
-                        <Dropdown id="partidos" :disabled="loadingPartidos" v-model="cliente.partido" :options="partidosDataXProvincia" optionLabel="nombre" placeholder="Selecciona un partido">
-                            <template #value="slotProps">
-                                <div v-if="slotProps.value && slotProps.value.nombre">
-                                    <div>{{ slotProps.value.nombre }}</div>
-                                </div>
-                                <div v-else-if="slotProps.value && !slotProps.value.nombre">
-                                    <div>{{ slotProps.value }}</div>
-                                </div>
-                                <span v-else>
-                                    {{slotProps.placeholder}} 
-                                </span>
-                            </template>
-                        </Dropdown>
+                        <DesplegablePartido :model="cliente" @onPartidoChange = "onPartidoChange"></DesplegablePartido>
+                    </div>
+                    <div class="field col">
+                        <DesplegableLocalidad :model="cliente"></DesplegableLocalidad>
                     </div>
                 </div>
                 <div class="field">
-                    <label for="condiciones_iva" class="mb-3">Condiciones de IVA</label>
-                    <Dropdown id="condiciones_iva" v-model="cliente.condicionIva" :options="condicionData" optionLabel="descripcion" placeholder="Selecciona una condición">
-                        <template #value="slotProps">
-                            <div v-if="slotProps.value && slotProps.value.descripcion">
-                                <div>{{ slotProps.value.descripcion }}</div>
-                            </div>
-                            <div v-else-if="slotProps.value && !slotProps.value.descripcion">
-                                <div>{{ slotProps.value }}</div>
-                            </div>
-                            <span v-else>
-                                {{slotProps.placeholder}} 
-                            </span>
-                        </template>
-                    </Dropdown>
-			    </div>
+                    <DespleagableCondicionIva :model="cliente"/>
+                </div>
                 
                 <template #footer>                    
                     <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"> </Button>
@@ -171,25 +122,33 @@
     import { ref, onMounted } from 'vue';
     import { FilterMatchMode } from 'primevue/api';
     import { useToast } from 'primevue/usetoast';
-    import { useCondicionIvaService } from '@/service/CondicionesIvaService';
-    import { usePaisesService } from '@/service/PaisService';
+    // import { useCondicionIvaService } from '@/service/CondicionesIvaService';
+    // import { usePaisesService } from '@/service/PaisService';
     import { useClienteServicio } from '../../service/ClienteService';
     import { useProvinciasService } from '../../service/ProvinciasService';
     import { usePartidosService } from '../../service/PartidosService';
+    import { useLocalidadesService } from '../../service/LocalidadesService';
+
+    import DespleagableCondicionIva from '../../components/DespleagableCondicionIva.vue';
+    import DespleagablePais from '../../components/DesplegablePais.vue';
+    import DesplegableProvincia from '../../components/DesplegableProvincia.vue';
+    import DesplegablePartido from '../../components/DesplegablePartido.vue';
+    import DesplegableLocalidad from '../../components/DesplegableLocalidad.vue';
     
     onMounted(() => {
 
         getAllClientes();
-        getCondiciones();        
-        getPaises();
+        // getCondiciones();        
+        // getPaises();
         
     });
 
     const { getAllClientes, clientesData, addCliente, updateCliente } = useClienteServicio();
-    const { getCondiciones, condicionData,} = useCondicionIvaService();
-    const { getPaises, paisesData} = usePaisesService();
-    const { getProvinciaPorPais, provinciasDataXPais, loadingProvincias} =  useProvinciasService();
-    const { getPartidosPorProvincia, partidosDataXProvincia, loadingPartidos}  = usePartidosService();
+    // const { getCondiciones, condicionData} = useCondicionIvaService();
+   //  const { getPaises, paisesData} = usePaisesService();
+    const { getProvinciaPorPais } =  useProvinciasService();
+    const { getPartidosPorProvincia }  = usePartidosService();
+    const {getLocalidadesPorPartido } = useLocalidadesService();
     const toast = useToast();
     const dt = ref();
     const clientes = ref();
@@ -287,15 +246,22 @@
         toast.add({severity:'success', summary: 'Successful', detail: 'Products Deleted', life: 3000});
     };
 
-    const onPaisChange = (evt) =>{
+    const onPaisChange = (id) =>{
         cliente.value.provincia = null;
         cliente.value.partido = null;
-        getProvinciaPorPais(evt.value.id);
+        cliente.value.localidad = null;
+        getProvinciaPorPais(id);
     }
 
-    const onProvinciaChange = (evt) =>{
+    const onProvinciaChange = (id) =>{
         cliente.value.partido = null;
-        getPartidosPorProvincia(evt.value.id)
+        cliente.value.localidad = null;
+        getPartidosPorProvincia(id);
+    }
+
+    const onPartidoChange = (id) =>{
+        cliente.value.localidad = null;
+        getLocalidadesPorPartido(id);
     }
 
 </script>
