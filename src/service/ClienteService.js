@@ -16,9 +16,10 @@ export const useClienteService = () =>{
     }
 
     const addCliente = (cliente) => {
-        cliente.pais      = '/api/pais/'+cliente.value.pais.id;
-        cliente.provincia = '/api/provincia/'+cliente.value.provincia.id;
-        cliente.partido   = '/api/partido/'+cliente.value.partido.id;
+        cliente.value.condicionIva = '/api/condicion_ivas/'+cliente.value.condicionIva.id;
+        cliente.value.pais         = '/api/pais/'+cliente.value.pais.id;
+        cliente.value.provincia    = '/api/provincias/'+cliente.value.provincia.id;
+        cliente.value.partido      = '/api/partidos/'+cliente.value.partido.id;
 
         const requestOptions = {
             method: "POST",
