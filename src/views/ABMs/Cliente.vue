@@ -11,7 +11,7 @@
                 </template>                
             </Toolbar>
 
-            <DataTable ref="dt" :value="clientesData" v-model:selection="selectedClientes" data-key="codcliente"
+            <DataTable ref="dt" :value="clientesData" v-model:selection="selectedClientes" data-key="id"
                 :rows="10" 
                 :filters="filtro" 
                 :paginator="true" paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" :rowsPerPageOptions="[5,10,25]" currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} clientes">
@@ -40,7 +40,8 @@
                     </Column>
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">                            
-                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editClient(slotProps.data)"> </Button>
+                            <Button icon="pi pi-pencil" outlined rounded severity="info" class="mr-2" @click="editClient(slotProps.data)"> </Button>
+                            <Button icon="pi pi-users" outlined rounded severity="warning" class="mr-2" @click="editContactos(slotProps.data)"> </Button>
                             <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteClient(slotProps.data)" > </Button>
                         </template>
                     </Column>
@@ -63,18 +64,33 @@
                     <InputText id="razon" v-model.trim="cliente.razonSocial" required="true" :class="{'p-invalid':submitted && !cliente.razonSocial}" />
                     <small class="p-error" v-if="submitted && !cliente.razonSocial">La Razon Social es obligatoria</small>
                 </div>
-                <div class="field">
-                    <label for="cuit">CUIT</label>
-                    <InputNumber inputId="cuit" v-model.trim="cliente.cuit" :useGrouping="false"/>
-                </div>
                 <div class="formgrid grid">
-                    <div class="field col">
+                    <div class="field sm:col-12 md:col-6 lg:col-6">
+                        <label for="cuit">CUIT</label>
+                        <InputNumber inputId="cuit" v-model="cliente.cuit" placeholder="##-########-#" :useGrouping="false"/>
+                    </div>
+                    <div class="field sm:col-12 md:col-6 lg:col-6">
+                        <label for="telefono">Teléfono</label>
+                        <InputText inputId="telefono" v-model.trim="cliente.telefono" :useGrouping="false"/>
+                    </div>
+                </div>
+
+                    <div class="formgrid grid">
+                    <div class="field sm:col-12 md:col-9 lg:col-7">
                         <label for="calle">Dirección</label>
                         <InputText id="calle" v-model.trim="cliente.calle" />
                     </div>
-                    <div class="field col">
+                    <div class="field sm:col-12 md:col-3 lg:col-3">
                         <label for="numero">Numero</label>
                         <InputText id="numero" v-model.trim="cliente.nro" />
+                    </div>
+                    <div class="field sm:col-12 md:col-6 lg:col-1">
+                        <label for="piso">Piso</label>
+                        <InputText id="piso" v-model.trim="cliente.piso" />
+                    </div>
+                    <div class="field sm:col-12 md:col-6 lg:col-1">
+                        <label for="dpto">Dpto</label>
+                        <InputText id="dpto" v-model.trim="cliente.dpto" />
                     </div>
                 </div>
                 <div class="formgrid grid">
@@ -94,6 +110,11 @@
                     </div>
                 </div>
                 <div class="field">
+                    <label for="cp">Código Postal</label>
+                    <InputText id="cp" v-model.trim="cliente.codigoPostal" />
+                </div>
+
+                <div class="field">
                     <DespleagableCondicionIva :model="cliente"/>
                 </div>
                 
@@ -106,11 +127,34 @@
             <Dialog v-model:visible="deleteClientDialog" :style="{width: '60%'}" header="Confirmar" :modal="true">
                 <div class="confirmation-content">
                     <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" > </i>
-                    <span v-if="cliente">¿Estas seguro de eliminar a <b>{{cliente.nombre_fantasia}}</b>?</span>
+                    <span v-if="cliente">¿Estas seguro de eliminar a <b>{{cliente.nombreFantasia}}</b>?</span>
                 </div>
                 <template #footer>
                     <Button label="No" icon="pi pi-times" text @click="deleteClientDialog = false"> </Button>
                     <Button label="Si" icon="pi pi-check" text @click="deleteClient"> </Button>
+                </template>
+            </Dialog>
+
+            <Dialog v-model:visible="deleteClientsDialog" :style="{width: '450px'}" header="Confirmar" :modal="true">
+            <div class="confirmation-content">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                <span v-if="cliente">Esta seguro que quiere eliminar estos clientes?</span>
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false"/>
+                <Button label="Si" icon="pi pi-check" text @click="deleteSelectedProducts" />
+            </template>            
+        </Dialog>
+        <Dialog v-model:visible="contactosDialog" :style="{width: '450px'}" header="Contactos" :modal="true">
+                <div class="card flex justify-content-center">
+                    <Listbox v-model="selectedContacto" :options="cliente.contactos" optionLabel="nombreApellido" class="w-full md:w-14rem" />
+                    <Button label="Editar" icon="pi pi-pencil" text > </Button>
+                    <Button label="Borrar" icon="pi pi-trash" text > </Button>
+                </div>
+                    
+                <template #footer>
+                    <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false"/>
+                    <Button label="Si" icon="pi pi-check" text @click="deleteSelectedProducts" />
                 </template>
             </Dialog>
         </template>       
@@ -122,8 +166,6 @@
     import { ref, onMounted } from 'vue';
     import { FilterMatchMode } from 'primevue/api';
     import { useToast } from 'primevue/usetoast';
-    // import { useCondicionIvaService } from '@/service/CondicionesIvaService';
-    // import { usePaisesService } from '@/service/PaisService';
     import { useClienteService } from '../../service/ClienteService';
     import { useProvinciasService } from '../../service/ProvinciasService';
     import { usePartidosService } from '../../service/PartidosService';
@@ -138,25 +180,22 @@
     onMounted(() => {
 
         getAllClientes();
-        // getCondiciones();        
-        // getPaises();
-        
+
     });
 
-    const { getAllClientes, clientesData, addCliente, updateCliente } = useClienteService();
-    // const { getCondiciones, condicionData} = useCondicionIvaService();
-   //  const { getPaises, paisesData} = usePaisesService();
+    const { getAllClientes, clientesData, addCliente, updateCliente, deleteCliente, clientesError } = useClienteService();
     const { getProvinciaPorPais } =  useProvinciasService();
     const { getPartidosPorProvincia }  = usePartidosService();
     const {getLocalidadesPorPartido } = useLocalidadesService();
     const toast = useToast();
     const dt = ref();
-    const clientes = ref();
     const clienteDialog = ref(false);
+    const contactosDialog =  ref(false);
     const deleteClientDialog = ref(false);
     const deleteClientsDialog = ref(false);
     const cliente = ref({});
     const selectedClientes = ref();
+    const selectedContacto = ref();
     const filtro = ref({
         'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
     });
@@ -172,49 +211,55 @@
         submitted.value = false;
     };
     const saveClient = () => {
-        submitted.value = true;
-        console.log(cliente.value);
+         submitted.value = true;
          if (cliente.value.nombreFantasia.trim()) {
              if (cliente.value.id) {
-        //         // aca hay que guardar el cliente con codCliente
-                //  cliente.value.condicionIva = cliente.value.condicionIva.descripcion ? cliente.value.condicionIva.descripcion : cliente.value.condicionIva;
-                //  clientes.value[findIndexById(cliente.value.id)] = cliente.value;
+                               
                 updateCliente(cliente);
-                toast.add({severity:'success', summary: 'Successful', detail: 'Cliente modificado', life: 3000});
+                if(!clientesError.value ){
+                    clientesData.value[findIndexById(cliente.value.id)] = cliente.value; 
+                    toast.add({severity:'success', summary: 'Successful', detail: 'Cliente modificado', life: 3000});
+                }
+                else{
+                    toast.add({severity:'danger', summary: 'Error', detail: clientesError.value, life: 3000});
+                }
              }
              else {              
-                 // aca hay que grabar el nuevo cliente
-                //  cliente.value.codcliente = createNewCodCliente();
-                //  cliente.value.condicionIva = cliente.value.condicionIva ? cliente.value.condicionIva.descripcion : 'Consumidor final';
-                //  clientes.value.push(cliente.value);
                 addCliente(cliente);
-                 toast.add({severity:'success', summary: 'Successful', detail: 'Product Created', life: 3000});
+                toast.add({severity:'success', summary: 'Successful', detail: 'Product Created', life: 3000});
              }
 
              clienteDialog.value = false;
              cliente.value = {};
          }
     };
-    const editClient = (prod) => {        
-        cliente.value = {...prod};
-        getProvinciaPorPais(prod.pais.id);
+    const editClient = (cl) => {        
+        cliente.value = {...cl};        
+        getProvinciaPorPais(cl.pais.id);
         clienteDialog.value = true;
     };
-    const confirmDeleteClient = (prod) => {
-        cliente.value = prod;
+
+    const editContactos = (cl) =>{
+        cliente.value = {...cl};
+        console.log(cliente.value.contactos[0]);
+        contactosDialog.value = true;
+    }
+    const confirmDeleteClient = (cl) => {
+        cliente.value = cl;
         deleteClientDialog.value = true;
     };
     const deleteClient = () => {
         // aca hay que borrar el cliente
-        clientes.value = clientes.value.filter(val => val.codcliente !== cliente.value.codcliente);
+        
+        deleteCliente(cliente)
         deleteClientDialog.value = false;
         cliente.value = {};
         toast.add({severity:'success', summary: 'Successful', detail: 'Product Deleted', life: 3000});
     };
     const findIndexById = (id) => {
         let index = -1;
-        for (let i = 0; i < clientes.value.length; i++) {
-            if (clientes.value[i].codcliente === id) {
+        for (let i = 0; i < clientesData.value.length; i++) {
+            if (clientesData.value[i].id === id) {
                 index = i;
                 break;
             }
@@ -223,16 +268,6 @@
         return index;
     };
 
-    const createNewCodCliente = () =>{
-        const nuevoId = clientes.value.reduce(function(a, b){ 
-            if (a.codcliente >= b.codcliente)
-                return a.codcliente; 
-            else (b.codcliente > a.codcliente)
-                return b.codcliente;
-        });
-        return nuevoId+1;
-    }
-
     const exportCSV = () => {
         dt.value.exportCSV();
     };
@@ -240,7 +275,7 @@
         deleteClientsDialog.value = true;
     };
     const deleteSelectedProducts = () => {
-        clientes.value = clientes.value.filter(val => !selectedClientes.value.includes(val));
+
         deleteClientsDialog.value = false;
         selectedClientes.value = null;
         toast.add({severity:'success', summary: 'Successful', detail: 'Products Deleted', life: 3000});

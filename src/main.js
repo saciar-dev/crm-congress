@@ -6,6 +6,7 @@ import { createPinia } from 'pinia';
 import PrimeVue from 'primevue/config';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
+import InpuMask from 'primevue/inputmask';
 import Button from 'primevue/button';
 import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice';
@@ -19,6 +20,7 @@ import DialogService from 'primevue/dialogservice'
 import Dropdown from 'primevue/dropdown'
 import Tag from 'primevue/tag'
 import ProgressSpinner from 'primevue/progressspinner';
+import Listbox from 'primevue/listbox';
 
 import './assets/app.css'
 import router from './router';
@@ -53,5 +55,7 @@ app.component('Dropdown', Dropdown);
 app.component('Tag', Tag);
 app.component('ProgressSpinner', ProgressSpinner);
 app.component('InputNumber', InputNumber);
+app.component('InputMask', InpuMask);
+app.component('Listbox', Listbox);
 
 app.mount('#app')

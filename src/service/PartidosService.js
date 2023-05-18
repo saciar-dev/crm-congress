@@ -16,33 +16,16 @@ export const usePartidosService =()=>{
         .catch(error => console.log(error))
     } 
 
-    const getPartidosPorProvincia2 = (idProvincia) =>{
-        partidosDataXProvincia.value =[];
-        fetch(useGlobales.urlBase+'/partidos')
-        .then(response => response.json())
-        .then(data => {
-            partidosData.value = data["hydra:member"];
-            console.log(data["hydra:totalItems"]);
-            const dataPartido = partidosData.value.map( p =>{
-                p.provincia == ('/api/provincias/'+idProvincia)
-
-            })
-            console.log(partidosData.value);
-            partidosDataXProvincia.value.push(dataPartido);
-        })
-        .catch(error => console.log(error))
-    }
-
     const getPartidosPorProvincia = (idProvincia) =>{
         loadingPartidos.value =true;
         partidosDataXProvincia.value =[];
         fetch(useGlobales.urlBase+'/partidos/provincia/'+idProvincia)
         .then(response => response.json())
         .then(data => {data["hydra:member"].forEach(partido => {                
-                if(partido.activo)
-                    partidosDataXProvincia.value.push(partido);
-            })
+            if(partido.activo)
+                partidosDataXProvincia.value.push(partido);
         })
+    })
         .finally(()=>loadingPartidos.value =false)
         .catch(error => console.log(error))
     }
